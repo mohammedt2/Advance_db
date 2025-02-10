@@ -1,0 +1,232 @@
+---
+title: "Entity-Relation Diagrams for Homework 2"
+author: "Taher Hussain Mohammed"
+format: html
+
+---
+
+# Introduction
+This report presents ER diagrams for three selected scenarios from Homework 2 in CMSC 608 - Spring 2025. Each scenario includes both Chen and Crow’s Foot ER diagrams, along with design choices and relation schemas.
+
+# Selected Scenarios
+The following three scenarios have been chosen:
+1. **Library Management System**
+2. **Real Estate Listing System**
+3. **School Course Enrollment System**
+
+# 1. Library Management System
+## Problem Description
+A library needs to manage books, members, and loans. Each book has a book ID, title, and author. Members have a member ID, name, and membership date. A member can loan multiple books.
+
+## ER Diagrams
+### Chen Notation
+
+```{dot}
+digraph ChenERDiagram {
+    rankdir=LR;
+    node [shape=box]; // Entities
+    BOOK; MEMBER; LOAN;
+
+    node [shape=ellipse]; // Attributes
+    BookID; Title; Author; MemberID; Name; MembershipDate;
+
+    // Relationships
+    node [shape=diamond];
+    is_borrowed_by; borrows;
+
+    // Entity-Attribute connections
+    BOOK -> BookID;
+    BOOK -> Title;
+    BOOK -> Author;
+    MEMBER -> MemberID;
+    MEMBER -> Name;
+    MEMBER -> MembershipDate;
+
+    // Entity-Relationship connections
+    BOOK -> is_borrowed_by [label="1"];
+    is_borrowed_by -> LOAN [label="N"];
+    MEMBER -> borrows [label="1"];
+    borrows -> LOAN [label="N"];
+}
+```
+
+
+
+
+
+
+
+### Crow’s Foot Notation
+```{mermaid}
+erDiagram
+    BOOK ||--o{ LOAN : "is_borrowed_by"
+    MEMBER ||--o{ LOAN : "borrows"
+    BOOK {
+        string BookID PK
+        string Title
+        string Author
+    }
+    MEMBER {
+        string MemberID PK
+        string Name
+        date MembershipDate
+    }
+    LOAN {
+        string BookID FK
+        string MemberID FK
+    }
+```
+
+## Design Choices
+- Loans are modeled as a relationship 
+- One-to-Many relationships between members and books necessitate an intersection entity (Loan).
+
+## Relation Schemas
+- **Book**(book_id, title, author)
+- **Member**(member_id, name, membership_date)
+- **Loan**
+
+# 2. Real Estate Listing System
+## Problem Description
+A real estate agency tracks properties, agents, and clients. Each property has a property ID, address, and listing price. Agents have an agent ID, name, and contact information. Clients have a client ID, name, and budget. An agent can handle multiple properties, but each property is listed by a single agent. Clients can be interested in multiple properties, and each property can have multiple interested clients.
+
+## ER Diagrams
+### Chen Notation 
+```{dot}
+digraph ChenERDiagram {
+    rankdir=LR;
+    node [shape=box]; // Entities
+    Agent; Property; Client;
+
+    node [shape=ellipse]; // Attributes
+    AgentID; AgentName; PropertyID; Address; ListingPrice; ClientID; ClientName; Budget; ContractInfo;
+
+    // Relationships
+    node [shape=diamond];
+    Handles; Interested;
+
+    // Entity-Attribute connections
+    Agent -> AgentID;
+    Agent -> AgentName; // Separate Name attribute for Agent
+    Agent -> ContractInfo; // Contract Info is associated with Agent
+    Property -> PropertyID;
+    Property -> Address;
+    Property -> ListingPrice; // Listing Price is associated with Property
+    Client -> ClientID;
+    Client -> ClientName; // Separate Name attribute for Client
+    Client -> Budget;
+
+    // Entity-Relationship connections
+    Agent -> Handles [label="1"];
+    Handles -> Property [label="N"]; // Agent handles multiple Properties
+    Client -> Interested [label="1"];
+    Interested -> Property [label="N"]; // Client is interested in multiple Properties
+}
+```
+
+
+### Crow’s Foot Notation 
+```{mermaid}
+erDiagram
+    AGENT ||--o{ PROPERTY : "handles"
+    CLIENT ||--o{ PROPERTY : "interested_in"
+    AGENT {
+        string AgentID PK
+        string Name
+        string ContactInfo
+    }
+    PROPERTY {
+        string PropertyID PK
+        string Address
+        float ListingPrice
+    }
+    CLIENT {
+        string ClientID PK
+        string Name
+        float Budget
+    }
+```
+
+## Design Choices
+- The **Handles** relationship is one-to-many (Agent to Property).
+- The **Interested** relationship is many-to-many, requiring an associative entity.
+
+## Relation Schemas
+- **Agent**(agent_id, name, contact_info)
+- **Property**(property_id, address, listing_price, agent_id)
+- **Client**(client_id, name, budget)
+
+# 3. School Course Enrollment System
+## Problem Description
+A school manages courses, students, and enrollments. Each course has a course ID, title, and credits. Students have a student ID, name, and enrollment date. Enrollments have an enrollment ID, enrollment date, and grade. A student can enroll in multiple courses, and each course can have multiple students. Each enrollment is associated with a single student enrolling in a single course.
+
+## ER Diagrams
+### Chen Notation 
+
+```{dot}
+digraph ChenERDiagram {
+    rankdir=LR;
+    node [shape=box]; // Entities
+    Student; Course; Enrollment;
+
+    node [shape=ellipse]; // Attributes
+    StudentID; Name; CourseID; Title; Credits; EnrollmentID; EnrollmentDate; Grade;
+
+    // Relationships
+    node [shape=diamond];
+    Takes; Enrolls;
+
+    // Entity-Attribute connections
+    Student -> StudentID;
+    Student -> Name;
+    Course -> CourseID;
+    Course -> Title;
+    Course -> Credits;
+    Enrollment -> EnrollmentID;
+    Enrollment -> EnrollmentDate;
+    Enrollment -> Grade;
+
+    // Entity-Relationship connections
+    Student -> Takes [label="1"];
+    Takes -> Enrollment [label="N"];
+    Course -> Enrolls [label="1"];
+    Enrolls -> Enrollment [label="N"];
+}
+```
+
+
+### Crow’s Foot Notation 
+```{mermaid}
+erDiagram
+    STUDENT ||--o{ ENROLLMENT : "enrolls_in"
+    COURSE ||--o{ ENROLLMENT : "has_enrollment"
+    STUDENT {
+        string StudentID PK
+        string Name
+    }
+    COURSE {
+        string CourseID PK
+        string Title
+    }
+    ENROLLMENT {
+        string EnrollmentID PK
+        date EnrollmentDate
+        string Grade
+        string StudentID FK
+        string CourseID FK
+    }
+```
+
+## Design Choices
+- **Enrollment** is a relationship entity capturing extra attributes (enrollment date, grade).
+- Many-to-many relationships between students and courses require this associative entity.
+
+## Relation Schemas
+- **Student**(student_id, name, enrollment_date)
+- **Course**(course_id, title, credits)
+- **Enrollment**(enrollment_id, enrollment_date, grade, student_id, course_id)
+
+# Conclusion
+This report provides ER diagrams for three scenarios using Chen and Crow’s Foot notations, along with relation schemas and design choices. These diagrams serve as foundational models for database design.
+
+
